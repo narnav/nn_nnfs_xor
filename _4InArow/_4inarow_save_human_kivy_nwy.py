@@ -88,6 +88,7 @@ class FourInARow:
         self.current_player = 'X'
 
     def make_move(self, col):
+        print(f"Making move in column {col} for player {self.current_player}")
         for row in range(5, -1, -1):
             if self.board[row][col] == '.':
                 self.board[row][col] = self.current_player
@@ -97,9 +98,11 @@ class FourInARow:
                         ww += 1
                     else:
                         ll += 1
+                    print(f"Player {self.current_player} wins! X wins:O wins = {ww}:{ll}")
                     self.update_nn()
                     return True
                 elif self.is_draw():
+                    print("It's a draw!")
                     return True
                 else:
                     self.switch_player()
@@ -107,6 +110,7 @@ class FourInARow:
 
     def switch_player(self):
         self.current_player = 'O' if self.current_player == 'X' else 'X'
+        print(f"Switched player to {self.current_player}")
 
     def check_winner(self):
         # Check rows for a win
@@ -232,59 +236,4 @@ class FourInARowApp(App):
                 button.disabled = True
                 self.layout.add_widget(button)
 
-        return self.layout
-
-    def column_pressed(self, col):
-        if self.game.current_player == 'O':
-            for row in range(5, -1, -1):
-                if self.game.board[row][col] == '.':
-                    if self.game.make_move(col):
-                        self.update_buttons()
-                        if self.game.check_winner() or self.game.is_draw():
-                            self.show_popup()
-                        else:
-                            self.ai_move()
-                    break
-
-    def ai_move(self):
-        row, col = self.game.nn_move()
-        self.game.make_move(col)
-        self.update_buttons()
-        if self.game.check_winner() or self.game.is_draw():
-            self.show_popup()
-
-    def update_buttons(self):
-        for row in range(6):
-            for col in range(7):
-                button = self.buttons[row][col]
-                if self.game.board[row][col] == 'X':
-                    button.text = 'X'
-                    button.background_color = [1, 0, 0, 1]  # Red for AI
-                elif self.game.board[row][col] == 'O':
-                    button.text = 'O'
-                    button.background_color = [0, 0, 1, 1]  # Blue for Human
-                else:
-                    button.text = ''
-                    button.background_color = [1, 1, 1, 1]  # White for empty
-
-    def show_popup(self):
-        layout = BoxLayout(orientation='vertical')
-        if self.game.check_winner():
-            winner_text = f"Player {self.game.current_player} wins!"
-        else:
-            winner_text = "It's a draw!"
-        label = Label(text=winner_text)
-        button = Button(text="Close", size_hint=(1, 0.2))
-        layout.add_widget(label)
-        layout.add_widget(button)
-        popup = Popup(title='Game Over', content=layout, size_hint=(0.5, 0.5))
-        button.bind(on_press=popup.dismiss)
-        popup.open()
-
-if __name__ == '__main__':
-    # Load saved model if available
-    nn = NeuralNetwork(84, 30, 1)
-    if LOAD_SAVED_MODEL:
-        nn.load_model('4_in_a_row_model.json')
-
-    FourInARowApp().run()
+        return self
