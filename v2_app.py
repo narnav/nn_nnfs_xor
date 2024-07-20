@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib
 
 # V1 - P4
+# same numbers
 np.random.seed(0)
 # shape (3,4)
 X =[[1,2,3,2.5],[2,5,-1,2],[-1.5,2.7,3.3,-.8]]
