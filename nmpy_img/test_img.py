@@ -1,33 +1,21 @@
 import numpy as np
 import os
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 from tensorflow.keras.datasets import mnist
 from PIL import Image
 
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 # Load the dataset
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
 
-# learn the data
-# print(train_images[0])
-# print(train_images[0].shape)
-# print(len(train_images))
-# image = Image.fromarray(train_images[0])
-# image.show()
-# exit()
-
-
 # Preprocess the Data
-# Normalize the images
 train_images = train_images / 255.0
 test_images = test_images / 255.0
 
-# Flatten the images
 train_images = train_images.reshape((60000, 784))
 test_images = test_images.reshape((10000, 784))
 
-# One-hot encode the labels
 def one_hot_encode(labels, num_classes):
     return np.eye(num_classes)[labels]
 
@@ -44,7 +32,6 @@ b1 = np.zeros((1, hidden_size))
 W2 = np.random.randn(hidden_size, output_size) * 0.01
 b2 = np.zeros((1, output_size))
 
-# Forward and Backward
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
@@ -81,7 +68,7 @@ def backward_propagation(X, Y, Z1, A1, Z2, A2):
     db1 = np.sum(dZ1, axis=0, keepdims=True) / m
     
     return dW1, db1, dW2, db2
-# train
+
 def update_parameters(W1, b1, W2, b2, dW1, db1, dW2, db2, learning_rate):
     W1 -= learning_rate * dW1
     b1 -= learning_rate * db1
@@ -102,7 +89,6 @@ def train(X, Y, learning_rate=0.1, epochs=100):
 
 train(train_images, train_labels, learning_rate=0.1, epochs=100)
 
-# Evaluate
 def predict(X):
     _, _, _, A2 = forward_propagation(X)
     return np.argmax(A2, axis=1)
@@ -115,40 +101,36 @@ test_predictions = predict(test_images)
 test_accuracy = np.mean(test_predictions == np.argmax(test_labels, axis=1))
 print(f"Test accuracy: {test_accuracy:.4f}")
 
+def save_model(W1, b1, W2, b2, filename='model.npz'):
+    np.savez(filename, W1=W1, b1=b1, W2=W2, b2=b2)
 
-# Preprocessing function for a single image
+# Save the model parameters
+save_model(W1, b1, W2, b2, 'mnist_model.npz')
+
+# Later, when you want to reuse the model:
+
+# Load the model parameters
+W1, b1, W2, b2 = load_model('mnist_model.npz')
+
+# Path to your image
+folder = 'path_to_your_folder'
+filename = 'your_image.png'
+
 def preprocess_image(image):
-    # Convert to grayscale if necessary
     if image.mode != 'L':
         image = image.convert('L')
-    
-    # Resize to 28x28
     image = image.resize((28, 28))
-    
-    # Convert to NumPy array
     image_array = np.array(image)
-    
-    # Normalize the image
     image_array = image_array / 255.0
-    
-    # Flatten the image
     image_array = image_array.reshape((1, 784))
-    
     return image_array
 
-# Prediction function
 def predict_image(image_array):
     _, _, _, A2 = forward_propagation(image_array)
     return np.argmax(A2, axis=1)
 
-# Path to your image
-folder = 'dogs'
-filename = 'dog8.jpg'
-
-# Load and preprocess the image
 img = Image.open(os.path.join(folder, filename))
 image_array = preprocess_image(img)
 
-# Predict the label
 prediction = predict_image(image_array)
 print(f"Predicted label: {prediction[0]}")
