@@ -1,11 +1,21 @@
 import numpy as np
 from tensorflow.keras.datasets import mnist
 import os
+from PIL import Image
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = '0'
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 # Load the dataset
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+
+# learn the data
+# print(train_images[0])
+# print(train_images[0].shape)
+# image = Image.fromarray(train_images[0])
+# image.show()
+# exit()
+
+
 # Preprocess the Data
 # Normalize the images
 train_images = train_images / 255.0
